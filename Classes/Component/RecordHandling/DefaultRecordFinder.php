@@ -210,8 +210,10 @@ class DefaultRecordFinder extends CommonRepository implements RecordFinder, Logg
         $this->tcaProcessingService = $tcaProcessingService;
         $this->parser = $simpleWhereClauseParsingService;
 
-        $preloadTables = $this->configContainer->get('factory.preload');
-        $this->preloadTables = array_combine($preloadTables, $preloadTables);
+        $preloadFeature = $this->configContainer->get('factory.preload');
+        if ($preloadFeature['enable']) {
+            $this->preloadTables = array_combine($preloadFeature['tables'], $preloadFeature['tables']);
+        }
     }
 
     public function findRecordByUidForOverview(int $uid, string $table, bool $excludePages = false): ?RecordInterface
