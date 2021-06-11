@@ -50,6 +50,7 @@ use In2code\In2publishCore\Event\VoteIfSearchingForRelatedRecordsByPropertyShoul
 use In2code\In2publishCore\Event\VoteIfSearchingForRelatedRecordsByTableShouldBeSkipped;
 use In2code\In2publishCore\Event\VoteIfSearchingForRelatedRecordsShouldBeSkipped;
 use In2code\In2publishCore\Service\Configuration\TcaService;
+use In2code\In2publishCore\Service\Database\SimpleWhereClauseParsingService;
 use In2code\In2publishCore\Utility\FileUtility;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
@@ -71,6 +72,7 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\MathUtility;
 
 use function array_column;
+use function array_combine;
 use function array_diff;
 use function array_filter;
 use function array_key_exists;
@@ -96,6 +98,7 @@ use function reset;
 use function stripos;
 use function strlen;
 use function strpos;
+use function strtolower;
 use function strtoupper;
 use function substr;
 use function trim;
@@ -168,6 +171,18 @@ class DefaultRecordFinder extends CommonRepository implements RecordFinder, Logg
     /** @var TcaProcessingService */
     protected $tcaProcessingService;
 
+    /** @var SimpleWhereClauseParsingService */
+    protected $parser = [];
+
+    /** @var array<string, string> */
+    protected $preloadTables = [];
+
+    /** @var array<string, array<string, array>> */
+    protected $preloadCache = [];
+
+    /** @var array<string, string> */
+    protected $statistics = [];
+
     public function __construct(
         Connection $localDatabase,
         Connection $foreignDatabase,
@@ -179,7 +194,8 @@ class DefaultRecordFinder extends CommonRepository implements RecordFinder, Logg
         FlexFormTools $flexFormTools,
         FlexFormService $flexFormService,
         TcaService $tcaService,
-        TcaProcessingService $tcaProcessingService
+        TcaProcessingService $tcaProcessingService,
+        SimpleWhereClauseParsingService $simpleWhereClauseParsingService
     ) {
         $this->localDatabase = $localDatabase;
         $this->foreignDatabase = $foreignDatabase;
@@ -192,6 +208,10 @@ class DefaultRecordFinder extends CommonRepository implements RecordFinder, Logg
         $this->flexFormService = $flexFormService;
         $this->tcaService = $tcaService;
         $this->tcaProcessingService = $tcaProcessingService;
+        $this->parser = $simpleWhereClauseParsingService;
+
+        $preloadTables = $this->configContainer->get('factory.preload');
+        $this->preloadTables = array_combine($preloadTables, $preloadTables);
     }
 
     public function findRecordByUidForOverview(int $uid, string $table, bool $excludePages = false): ?RecordInterface
@@ -2034,6 +2054,14 @@ class DefaultRecordFinder extends CommonRepository implements RecordFinder, Logg
             throw new MissingArgumentException('tableName');
         }
 
+        if (isset($this->preloadTables[$tableName])) {
+            $properties = $this->parser->parseToPropertyArray($additionalWhere, $tableName);
+            if (null !== $properties) {
+                $properties[$propertyName] = strtolower((string)$propertyValue);
+                return $this->getPreloadedRowsMatchingProperties($connection, $tableName, $properties, $indexField);
+            }
+        }
+
         if (empty($tableName)) {
             return $propertyArray;
         }
@@ -2081,6 +2109,8 @@ class DefaultRecordFinder extends CommonRepository implements RecordFinder, Logg
         if (!empty($limit)) {
             $query->setMaxResults((int)$limit);
         }
+        $this->statistics['f'][__FUNCTION__]++;
+        $this->statistics['t'][$tableName]++;
         $rows = $query->execute()->fetchAllAssociative();
 
         return $this->indexRowsByField($indexField, $rows);
@@ -2151,6 +2181,17 @@ class DefaultRecordFinder extends CommonRepository implements RecordFinder, Logg
             throw new MissingArgumentException('tableName');
         }
 
+        if (isset($this->preloadTables[$tableName])) {
+            $additionalProperties = $this->parser->parseToPropertyArray($additionalWhere, $tableName);
+            if (null !== $additionalProperties) {
+                foreach ($properties as $propertyName => $propertyValue) {
+                    $properties[$propertyName] = strtolower((string)$propertyValue);
+                }
+                $properties = array_merge($additionalProperties, $properties);
+                return $this->getPreloadedRowsMatchingProperties($connection, $tableName, $properties, $indexField);
+            }
+        }
+
         if (empty($orderBy)) {
             $orderBy = $this->tcaService->getSortingField($tableName);
         }
@@ -2183,8 +2224,74 @@ class DefaultRecordFinder extends CommonRepository implements RecordFinder, Logg
         if (!empty($limit)) {
             $query->setMaxResults((int)$limit);
         }
+        $this->statistics['f'][__FUNCTION__]++;
+        $this->statistics['t'][$tableName]++;
         $rows = $query->execute()->fetchAllAssociative();
 
         return $this->indexRowsByField($indexField, $rows);
+    }
+
+    /**
+     * Select all rows from a table. Only useful for tables with few entries.
+     *
+     * @param Connection $connection
+     * @param string $tableName
+     * @return array
+     */
+    protected function findAll(Connection $connection, string $tableName): array
+    {
+        $query = $connection->createQueryBuilder();
+        $query->getRestrictions()->removeAll();
+        $query->select('*')->from($tableName);
+        $this->statistics['f'][__FUNCTION__]++;
+        $this->statistics['t'][$tableName]++;
+        $rows = $query->execute()->fetchAll();
+        return array_column($rows, null, 'uid');
+    }
+
+    protected function getPreloadCache(Connection $connection, string $tableName): array
+    {
+        $connectionId = spl_object_id($connection);
+        if (!array_key_exists($connectionId, $this->preloadCache)) {
+            $this->preloadCache[$connectionId] = [];
+        }
+        if (!array_key_exists($tableName, $this->preloadCache[$connectionId])) {
+            $this->preloadCache[$connectionId][$tableName] = $this->findAll($connection, $tableName);
+        }
+        return $this->preloadCache[$connectionId][$tableName];
+    }
+
+    protected function getPreloadedRowsMatchingProperties(
+        Connection $connection,
+        ?string $tableName,
+        array $properties,
+        string $indexField
+    ): array {
+        $cache = $this->getPreloadCache($connection, $tableName);
+        foreach ($cache as $idx => $row) {
+            if (!$this->isRowMatchingProperties($row, $properties)) {
+                unset($cache[$idx]);
+            }
+        }
+        return $this->indexRowsByField($indexField, $cache);
+    }
+
+    protected function isRowMatchingProperties(array $row, array $properties): bool
+    {
+        foreach ($properties as $name => $value) {
+            if (!array_key_exists($name, $row) || strtolower((string)$row[$name]) !== $value) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Since this class is a singleton, this object will be destructed at the very end of any PHP processing.
+     * At that point, no queries will be executed anymore and the statistics are complete.
+     */
+    public function __destruct()
+    {
+        $this->logger->debug('BasicRepository query statistics', $this->statistics);
     }
 }
