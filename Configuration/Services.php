@@ -16,12 +16,12 @@ use In2code\In2publishCore\Features\RedirectsSupport\Domain\Anomaly\RedirectCach
 use In2code\In2publishCore\Features\RedirectsSupport\EventListener\EarlyRedirectsSupportEventListener;
 use In2code\In2publishCore\Features\RedirectsSupport\PageRecordRedirectEnhancer;
 use In2code\In2publishCore\Testing\Tests\TestCaseInterface;
+use In2code\In2publishCore\Utility\ExtensionUtility;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use Symfony\Component\DependencyInjection\Reference;
 use TYPO3\CMS\Core\Database\Event\AlterTableDefinitionStatementsEvent;
 use TYPO3\CMS\Core\DependencyInjection\PublicServicePass;
-use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 
 return static function (ContainerConfigurator $configurator, ContainerBuilder $builder) {
     (include __DIR__ . '/Features/AdminTools/Services.php')($configurator, $builder);
@@ -48,7 +48,7 @@ return static function (ContainerConfigurator $configurator, ContainerBuilder $b
     $defaults->bind('$localDatabase', new Reference('In2code.In2publishCore.Database.Local'));
     $defaults->bind('$foreignDatabase', new Reference('In2code.In2publishCore.Database.Foreign'));
 
-    if (ExtensionManagementUtility::isLoaded('news')) {
+    if (ExtensionUtility::isLoaded('news')) {
         $services->set('tx_in2publish_newssupport_event_listener')
                  ->class(NewsCacheInvalidator::class)
                  ->tag(
@@ -69,7 +69,7 @@ return static function (ContainerConfigurator $configurator, ContainerBuilder $b
                  );
     }
 
-    if (ExtensionManagementUtility::isLoaded('redirects')) {
+    if (ExtensionUtility::isLoaded('redirects')) {
         $services->set('tx_in2publish_redirectssupport_event_listener_schema')
                  ->class(EarlyRedirectsSupportEventListener::class)
                  ->tag(
