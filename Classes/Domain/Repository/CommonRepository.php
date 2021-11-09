@@ -1352,7 +1352,7 @@ class CommonRepository extends BaseRepository
         $flexFormData = ''
     ): array {
         $records = [];
-        switch ($columnConfiguration['internal_type']) {
+        switch (($columnConfiguration['internal_type'] ?? 'db')) {
             case 'db':
                 $records = $this->fetchRelatedRecordsByGroupTypeDb(
                     $columnConfiguration,
