@@ -105,6 +105,7 @@ abstract class AbstractController extends ActionController
         }
     }
 
+    // TODO v12: replace TYPO3\CMS\Extbase\Mvc\View\ViewInterface with TYPO3Fluid\Fluid\View\ViewInterface
     protected function initializeView(ViewInterface $view): void
     {
         parent::initializeView($view);
