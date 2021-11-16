@@ -39,6 +39,7 @@ use In2code\In2publishCore\Features\RedirectsSupport\Domain\Dto\Filter;
 use In2code\In2publishCore\Features\RedirectsSupport\Domain\Repository\SysRedirectRepository;
 use In2code\In2publishCore\Service\Environment\EnvironmentService;
 use In2code\In2publishCore\Utility\DatabaseUtility;
+use Psr\Http\Message\ResponseInterface;
 use Throwable;
 use TYPO3\CMS\Core\Messaging\AbstractMessage;
 use TYPO3\CMS\Extbase\Utility\LocalizationUtility;
@@ -99,7 +100,7 @@ class RedirectController extends AbstractController
      * @param Filter|null $filter
      * @throws Throwable
      */
-    public function listAction(Filter $filter = null): void
+    public function listAction(Filter $filter = null): ResponseInterface
     {
         $foreignConnection = DatabaseUtility::buildForeignDatabaseConnection();
         $uidList = [];
@@ -117,6 +118,7 @@ class RedirectController extends AbstractController
                 'filter' => $filter,
             ]
         );
+        return $this->htmlResponse();
     }
 
     /** @throws Throwable */

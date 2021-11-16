@@ -31,11 +31,12 @@ namespace In2code\In2publishCore\Controller;
  */
 
 use In2code\In2publishCore\Utility\BackendUtility;
+use Psr\Http\Message\ResponseInterface;
 
 class FrontendController extends AbstractController
 {
     /** Preview action for vertical or horizontal view */
-    public function previewAction(int $identifier = 1): void
+    public function previewAction(int $identifier = 1): ResponseInterface
     {
         $this->view->assign(
             'local_preview',
@@ -45,5 +46,6 @@ class FrontendController extends AbstractController
             'foreign_preview',
             (string)BackendUtility::buildPreviewUri('pages', $identifier, 'foreign')
         );
+        return $this->htmlResponse();
     }
 }

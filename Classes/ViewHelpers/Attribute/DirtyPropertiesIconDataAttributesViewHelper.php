@@ -31,7 +31,7 @@ namespace In2code\In2publishCore\ViewHelpers\Attribute;
 use In2code\In2publishCore\Config\ConfigContainer;
 use In2code\In2publishCore\Domain\Model\Record;
 use In2code\In2publishCore\Domain\Model\RecordInterface;
-use TYPO3\CMS\Extbase\Mvc\Controller\ControllerContext;
+use TYPO3\CMS\Extbase\Mvc\Web\Routing\UriBuilder;
 use TYPO3\CMS\Fluid\Core\Rendering\RenderingContext;
 use TYPO3Fluid\Fluid\Core\Rendering\RenderingContextInterface;
 use TYPO3Fluid\Fluid\Core\ViewHelper\AbstractViewHelper;
@@ -41,8 +41,8 @@ class DirtyPropertiesIconDataAttributesViewHelper extends AbstractViewHelper
     /** @var bool */
     protected $escapeOutput = false;
 
-    /** @var ControllerContext */
-    protected $controllerContext;
+    /** @var UriBuilder */
+    protected $uriBuilder;
 
     /** @var ConfigContainer */
     private $configContainer;
@@ -56,7 +56,7 @@ class DirtyPropertiesIconDataAttributesViewHelper extends AbstractViewHelper
     {
         parent::setRenderingContext($renderingContext);
         if ($renderingContext instanceof RenderingContext) {
-            $this->controllerContext = $renderingContext->getControllerContext();
+            $this->uriBuilder = $renderingContext->getUriBuilder();
         }
     }
 
@@ -88,9 +88,7 @@ class DirtyPropertiesIconDataAttributesViewHelper extends AbstractViewHelper
 
     protected function getAjaxUri(Record $record): string
     {
-        return $this
-            ->controllerContext
-            ->getUriBuilder()
+        return $this->uriBuilder
             ->uriFor(
                 'detail',
                 ['identifier' => $record->getIdentifier(), 'tableName' => $record->getTableName()],
