@@ -34,14 +34,11 @@ use In2code\In2publishCore\Domain\Repository\CommonRepository;
 
 final class VoteIfSearchingForRelatedRecordsByTableShouldBeSkipped extends AbstractVotingEvent
 {
-    /** @var CommonRepository */
-    private $commonRepository;
+    private CommonRepository $commonRepository;
 
-    /** @var RecordInterface */
-    private $record;
+    private RecordInterface $record;
 
-    /** @var string */
-    private $tableName;
+    private string $tableName;
 
     public function __construct(CommonRepository $commonRepository, RecordInterface $record, string $tableName)
     {

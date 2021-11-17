@@ -34,11 +34,9 @@ use In2code\In2publishCore\Domain\Repository\CommonRepository;
 
 final class PublishingOfOneRecordEnded
 {
-    /** @var RecordInterface */
-    private $record;
+    private RecordInterface $record;
 
-    /** @var CommonRepository */
-    private $commonRepository;
+    private CommonRepository $commonRepository;
 
     public function __construct(RecordInterface $record, CommonRepository $commonRepository)
     {

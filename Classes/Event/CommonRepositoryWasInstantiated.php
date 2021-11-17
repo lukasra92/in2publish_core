@@ -33,8 +33,7 @@ use In2code\In2publishCore\Domain\Repository\CommonRepository;
 
 final class CommonRepositoryWasInstantiated
 {
-    /** @var CommonRepository */
-    private $commonRepository;
+    private CommonRepository $commonRepository;
 
     public function __construct(CommonRepository $commonRepository)
     {

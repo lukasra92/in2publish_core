@@ -43,14 +43,11 @@ use function json_encode;
 
 class PublishPageAjaxController
 {
-    /** @var CommonRepository */
-    protected $commonRepository;
+    protected CommonRepository $commonRepository;
 
-    /** @var PermissionService */
-    protected $permissionService;
+    protected PermissionService $permissionService;
 
-    /** @var TaskExecutionService */
-    protected $taskExecutionService;
+    protected TaskExecutionService $taskExecutionService;
 
     public function __construct(
         CommonRepository $commonRepository,

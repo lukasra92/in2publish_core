@@ -48,17 +48,13 @@ class FakeRecordFactory
 {
     public const PAGE_TABLE_NAME = 'pages';
 
-    /** @var TableCacheRepository */
-    protected $tableCacheRepository;
+    protected TableCacheRepository $tableCacheRepository;
 
-    /** @var TcaService */
-    protected $tcaService;
+    protected TcaService $tcaService;
 
-    /** @var array */
-    protected $config;
+    protected array $config;
 
-    /** @var array */
-    protected $metaDataBlackList = [];
+    protected array $metaDataBlackList = [];
 
     public function __construct(
         TableCacheRepository $tableCacheRepository,

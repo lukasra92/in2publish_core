@@ -58,7 +58,7 @@ use In2code\In2publishCore\Domain\Service\Processor\UserProcessor;
  */
 class In2publishCoreDefiner implements DefinerInterface
 {
-    protected $defaultIgnoredFields = [
+    protected array $defaultIgnoredFields = [
         'pages' => [
             'pid',
             'uid',
@@ -110,7 +110,7 @@ class In2publishCoreDefiner implements DefinerInterface
         ],
     ];
 
-    protected $defaultIgnoredTables = [
+    protected array $defaultIgnoredTables = [
         'be_groups',
         'be_users',
         'sys_history',

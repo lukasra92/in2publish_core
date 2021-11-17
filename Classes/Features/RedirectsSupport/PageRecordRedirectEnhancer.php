@@ -46,19 +46,15 @@ use function array_keys;
 
 class PageRecordRedirectEnhancer
 {
-    /** @var CommonRepository */
-    protected $commonRepository;
+    protected CommonRepository $commonRepository;
 
-    /** @var Connection */
-    protected $localDatabase;
+    protected Connection $localDatabase;
 
-    /** @var Connection */
-    protected $foreignDatabase;
+    protected Connection $foreignDatabase;
 
-    /** @var SysRedirectRepository */
-    protected $repo;
+    protected SysRedirectRepository $repo;
 
-    protected $looseRedirects;
+    protected array $looseRedirects = [];
 
     public function __construct(
         CommonRepository $commonRepository,

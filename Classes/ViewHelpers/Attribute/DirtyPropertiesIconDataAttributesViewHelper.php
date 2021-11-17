@@ -41,11 +41,9 @@ class DirtyPropertiesIconDataAttributesViewHelper extends AbstractViewHelper
     /** @var bool */
     protected $escapeOutput = false;
 
-    /** @var UriBuilder */
-    protected $uriBuilder;
+    protected UriBuilder $uriBuilder;
 
-    /** @var ConfigContainer */
-    private $configContainer;
+    private ConfigContainer $configContainer;
 
     public function __construct(ConfigContainer $configContainer)
     {

@@ -63,14 +63,11 @@ use function strpos;
  */
 class FileController extends AbstractController
 {
-    /** @var FolderPublisherService */
-    protected $folderPublisherService;
+    protected FolderPublisherService $folderPublisherService;
 
-    /** @var CommonRepository */
-    protected $commonRepository;
+    protected CommonRepository $commonRepository;
 
-    /** @var bool */
-    protected $forcePidInteger = false;
+    protected bool $forcePidInteger = false;
 
     public function __construct(
         ConfigContainer $configContainer,

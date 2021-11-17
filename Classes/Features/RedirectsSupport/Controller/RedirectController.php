@@ -52,14 +52,11 @@ use function sprintf;
 
 class RedirectController extends AbstractController
 {
-    /** @var CommonRepository */
-    protected $commonRepository;
+    protected CommonRepository $commonRepository;
 
-    /** @var ForeignSiteFinder */
-    protected $foreignSiteFinder;
+    protected ForeignSiteFinder $foreignSiteFinder;
 
-    /** @var SysRedirectRepository */
-    protected $sysRedirectRepo;
+    protected SysRedirectRepository $sysRedirectRepo;
 
     public function __construct(
         ConfigContainer $configContainer,

@@ -61,26 +61,19 @@ class FolderRecordFactory implements LoggerAwareInterface
 {
     use LoggerAwareTrait;
 
-    /** @var ResourceFactory */
-    protected $resourceFactory;
+    protected ResourceFactory $resourceFactory;
 
-    /** @var CommonRepository */
-    protected $commonRepository;
+    protected CommonRepository $commonRepository;
 
-    /** @var Connection */
-    protected $foreignDatabase;
+    protected Connection $foreignDatabase;
 
-    /** @var array */
-    protected $configuration = [];
+    protected array $configuration = [];
 
-    /** @var DriverInterface */
-    protected $localDriver;
+    protected DriverInterface $localDriver;
 
-    /** @var DriverInterface */
-    protected $foreignDriver;
+    protected DriverInterface $foreignDriver;
 
-    /** @var FileIndexFactory */
-    protected $fileIndexFactory;
+    protected FileIndexFactory $fileIndexFactory;
 
     public function __construct(
         ResourceFactory $resourceFactory,

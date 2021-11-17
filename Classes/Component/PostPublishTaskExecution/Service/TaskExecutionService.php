@@ -41,11 +41,9 @@ class TaskExecutionService implements LoggerAwareInterface
 {
     use LoggerAwareTrait;
 
-    /** @var RemoteCommandDispatcher */
-    protected $remoteCommandDispatcher;
+    protected RemoteCommandDispatcher $remoteCommandDispatcher;
 
-    /** @var TaskRepository */
-    protected $taskRepository;
+    protected TaskRepository $taskRepository;
 
     public function __construct(RemoteCommandDispatcher $remoteCommandDispatcher, TaskRepository $taskRepository)
     {

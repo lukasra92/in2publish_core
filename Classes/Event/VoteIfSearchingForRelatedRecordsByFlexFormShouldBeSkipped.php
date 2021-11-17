@@ -34,23 +34,17 @@ use In2code\In2publishCore\Domain\Repository\CommonRepository;
 
 final class VoteIfSearchingForRelatedRecordsByFlexFormShouldBeSkipped extends AbstractVotingEvent
 {
-    /** @var CommonRepository */
-    private $commonRepository;
+    private CommonRepository $commonRepository;
 
-    /** @var RecordInterface */
-    private $record;
+    private RecordInterface $record;
 
-    /** @var string */
-    private $column;
+    private string $column;
 
-    /** @var array */
-    private $columnConfiguration;
+    private array $columnConfiguration;
 
-    /** @var array */
-    private $flexFormDefinition;
+    private array $flexFormDefinition;
 
-    /** @var array */
-    private $flexFormData;
+    private array $flexFormData;
 
     public function __construct(
         CommonRepository $commonRepository,

@@ -34,17 +34,13 @@ use In2code\In2publishCore\Domain\Repository\CommonRepository;
 
 final class RelatedRecordsByRteWereFetched
 {
-    /** @var CommonRepository */
-    private $commonRepository;
+    private CommonRepository $commonRepository;
 
-    /** @var string */
-    private $bodyText;
+    private string $bodyText;
 
-    /** @var array */
-    private $excludedTableNames;
+    private array $excludedTableNames;
 
-    /** @var array */
-    private $relatedRecords;
+    private array $relatedRecords;
 
     public function __construct(
         CommonRepository $commonRepository,

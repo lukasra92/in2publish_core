@@ -51,7 +51,7 @@ class TableCacheRepository implements SingletonInterface
      *
      * @var array
      */
-    protected $localCache = [];
+    protected array $localCache = [];
 
     /**
      * Hold table values from foreign database
@@ -65,7 +65,7 @@ class TableCacheRepository implements SingletonInterface
      *
      * @var array
      */
-    protected $foreignCache = [];
+    protected array $foreignCache = [];
 
     /**
      * Get properties from cache by given tableName and uid

@@ -139,38 +139,27 @@ class CommonRepository extends BaseRepository
      */
     public const SIGNAL_RELATION_RESOLVER_RTE = 'relationResolverRTE';
 
-    /** @var Connection */
-    protected $localDatabase;
+    protected ?Connection $localDatabase;
 
-    /** @var Connection */
-    protected $foreignDatabase;
+    protected ?Connection $foreignDatabase;
 
-    /** @var RecordFactory */
-    protected $recordFactory;
+    protected RecordFactory $recordFactory;
 
-    /** @var ResourceFactory */
-    protected $resourceFactory;
+    protected ResourceFactory $resourceFactory;
 
-    /** @var NewTaskRepository */
-    protected $taskRepository;
+    protected NewTaskRepository $taskRepository;
 
-    /** @var ConfigContainer */
-    protected $configContainer;
+    protected ConfigContainer $configContainer;
 
-    /** @var EventDispatcher */
-    protected $eventDispatcher;
+    protected EventDispatcher $eventDispatcher;
 
-    /** @var ReplaceMarkersService */
-    protected $replaceMarkersService;
+    protected ReplaceMarkersService $replaceMarkersService;
 
-    /** @var FlexFormTools */
-    protected $flexFormTools;
+    protected FlexFormTools $flexFormTools;
 
-    /** @var FlexFormService */
-    private $flexFormService;
+    private FlexFormService $flexFormService;
 
-    /** @var array */
-    protected $visitedRecords = [];
+    protected array $visitedRecords = [];
 
     public function __construct(
         TcaService $tcaService,

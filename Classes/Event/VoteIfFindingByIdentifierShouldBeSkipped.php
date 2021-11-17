@@ -33,14 +33,11 @@ use In2code\In2publishCore\Domain\Repository\CommonRepository;
 
 final class VoteIfFindingByIdentifierShouldBeSkipped extends AbstractVotingEvent
 {
-    /** @var CommonRepository */
-    private $commonRepository;
+    private CommonRepository $commonRepository;
 
-    /** @var int */
-    private $identifier;
+    private int $identifier;
 
-    /** @var string */
-    private $tableName;
+    private string $tableName;
 
     public function __construct(CommonRepository $commonRepository, int $identifier, string $tableName)
     {

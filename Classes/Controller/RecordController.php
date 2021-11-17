@@ -63,17 +63,13 @@ use function strpos;
  */
 class RecordController extends AbstractController
 {
-    /** @var CommonRepository */
-    protected $commonRepository;
+    protected CommonRepository $commonRepository;
 
-    /** @var FailureCollector */
-    protected $failureCollector;
+    protected FailureCollector $failureCollector;
 
-    /** @var FakeRecordFactory */
-    protected $fakeRecordFactory;
+    protected FakeRecordFactory $fakeRecordFactory;
 
-    /** @var PermissionService */
-    protected $permissionService;
+    protected PermissionService $permissionService;
 
     public function __construct(
         ConfigContainer $configContainer,

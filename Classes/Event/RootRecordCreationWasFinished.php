@@ -34,11 +34,9 @@ use In2code\In2publishCore\Domain\Model\RecordInterface;
 
 final class RootRecordCreationWasFinished
 {
-    /** @var RecordFactory */
-    private $recordFactory;
+    private RecordFactory $recordFactory;
 
-    /** @var RecordInterface */
-    private $record;
+    private RecordInterface $record;
 
     public function __construct(RecordFactory $recordFactory, RecordInterface $record)
     {

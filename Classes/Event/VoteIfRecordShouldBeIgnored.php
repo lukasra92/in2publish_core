@@ -33,17 +33,13 @@ use In2code\In2publishCore\Domain\Repository\CommonRepository;
 
 final class VoteIfRecordShouldBeIgnored extends AbstractVotingEvent
 {
-    /** @var CommonRepository */
-    private $commonRepository;
+    private CommonRepository $commonRepository;
 
-    /** @var array */
-    private $localProperties;
+    private array $localProperties;
 
-    /** @var array */
-    private $foreignProperties;
+    private array $foreignProperties;
 
-    /** @var string */
-    private $tableName;
+    private string $tableName;
 
     public function __construct(
         CommonRepository $commonRepository,

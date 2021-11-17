@@ -34,17 +34,13 @@ use In2code\In2publishCore\Domain\Repository\CommonRepository;
 
 final class VoteIfSearchingForRelatedRecordsByPropertyShouldBeSkipped extends AbstractVotingEvent
 {
-    /** @var CommonRepository */
-    private $commonRepository;
+    private CommonRepository $commonRepository;
 
-    /** @var RecordInterface */
-    private $record;
+    private RecordInterface $record;
 
-    /** @var string */
-    private $propertyName;
+    private string $propertyName;
 
-    /** @var array */
-    private $columnConfiguration;
+    private array $columnConfiguration;
 
     public function __construct(
         CommonRepository $commonRepository,

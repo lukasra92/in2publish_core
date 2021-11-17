@@ -62,8 +62,7 @@ abstract class BaseRepository implements LoggerAwareInterface
 
     public const ADDITIONAL_ORDER_BY_PATTERN = '/(?P<where>.*)ORDER[\s\n]+BY[\s\n]+(?P<col>\w+(\.\w+)?)(?P<dir>\s(DESC|ASC))?/is';
 
-    /** @var TcaService */
-    protected $tcaService;
+    protected TcaService $tcaService;
 
     public function __construct(TcaService $tcaService)
     {

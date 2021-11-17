@@ -33,17 +33,14 @@ use In2code\In2publishCore\Domain\Repository\CommonRepository;
 
 final class VoteIfFindingByPropertyShouldBeSkipped extends AbstractVotingEvent
 {
-    /** @var CommonRepository */
-    private $commonRepository;
+    private CommonRepository $commonRepository;
 
-    /** @var string */
-    private $propertyName;
+    private string $propertyName;
 
     /** @var mixed */
     private $propertyValue;
 
-    /** @var string */
-    private $tableName;
+    private string $tableName;
 
     public function __construct(
         CommonRepository $commonRepository,
