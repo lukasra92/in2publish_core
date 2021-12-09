@@ -216,7 +216,7 @@ class PhysicalFilePublisher implements SingletonInterface, LoggerAwareInterface
         $new = $record->getLocalProperty('identifier');
         if ($old !== $new) {
             $movingResult = $this->filePublisherService->moveForeignFile($storage, $old, $new);
-            $result = $new === $movingResult;
+            $result = trim($new, '/') === trim($movingResult, '/');
             if (true === $result) {
                 $this->logger->info('Updated file on foreign', $logData);
             } else {

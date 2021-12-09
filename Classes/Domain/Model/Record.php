@@ -41,6 +41,7 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 use function array_diff;
 use function array_filter;
+use function array_flip;
 use function array_key_exists;
 use function array_keys;
 use function array_merge;
@@ -777,28 +778,41 @@ class Record implements RecordInterface
      */
     public function calculateState(): void
     {
-        if (
-            'sys_file' === $this->tableName
-            && !isset($this->additionalProperties['recordDatabaseState'])
-            && $this->hasLocalProperty('identifier')
-            && $this->hasForeignProperty('identifier')
-            && $this->getLocalProperty('identifier') !== $this->getForeignProperty('identifier')
-        ) {
-            $this->setState(static::RECORD_STATE_MOVED);
+        if ('sys_file' === $this->tableName && isset($this->additionalProperties['recordDatabaseState'])) {
+            if (0 === count($this->dirtyProperties)) {
+                $this->state = static::RECORD_STATE_UNCHANGED;
+                return;
+            }
+            $localIdentifier = $this->localProperties['identifier'] ?? null;
+            $foreignIdentifier = $this->foreignProperties['identifier'] ?? null;
+            if (null === $localIdentifier) {
+                if (null === $foreignIdentifier) {
+                    $this->setState(static::RECORD_STATE_UNCHANGED);
+                } else {
+                    $this->setState(static::RECORD_STATE_DELETED);
+                }
+            } elseif (null === $foreignIdentifier) {
+                $this->setState(static::RECORD_STATE_ADDED);
+            } else {
+                $this->setState(static::RECORD_STATE_MOVED);
+                $dirtyProperties = array_flip($this->dirtyProperties);
+                // Unset properties which change when the file was renamed
+                unset($dirtyProperties['identifier'], $dirtyProperties['identifier_hash'], $dirtyProperties['name']);
+                // Unset properties which change when the file was moved to another folder
+                /** @noinspection UnsetConstructsCanBeMergedInspection */
+                unset($dirtyProperties['folder_hash']);
+                // Something else changed.
+                if (!empty($dirtyProperties)) {
+                    $this->setState(static::RECORD_STATE_MOVED_AND_CHANGED);
+                }
+            }
             return;
         }
         if ($this->localRecordExists() && $this->foreignRecordExists()) {
             if ($this->isLocalRecordDeleted() && !$this->isForeignRecordDeleted()) {
                 $this->setState(RecordInterface::RECORD_STATE_DELETED);
             } elseif (count($this->dirtyProperties) > 0) {
-                if (
-                    $this->state === RecordInterface::RECORD_STATE_MOVED
-                    && isset($this->additionalProperties['recordDatabaseState'])
-                ) {
-                    $this->setState(RecordInterface::RECORD_STATE_MOVED_AND_CHANGED);
-                } else {
-                    $this->setState(RecordInterface::RECORD_STATE_CHANGED);
-                }
+                $this->setState(RecordInterface::RECORD_STATE_CHANGED);
             } else {
                 $this->setState(RecordInterface::RECORD_STATE_UNCHANGED);
             }

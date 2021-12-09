@@ -55,6 +55,12 @@ class DefaultRecordPublisher extends CommonRepository implements RecordPublisher
 {
     use LoggerAwareTrait;
 
+    protected const CHANGED_STATES = [
+        RecordInterface::RECORD_STATE_CHANGED,
+        RecordInterface::RECORD_STATE_MOVED,
+        RecordInterface::RECORD_STATE_MOVED_AND_CHANGED,
+    ];
+
     /** @var EventDispatcher */
     protected $eventDispatcher;
 
@@ -142,7 +148,7 @@ class DefaultRecordPublisher extends CommonRepository implements RecordPublisher
                 $this->deleteRecord($this->foreignDatabase, $record->getForeignProperty('uid'), $tableName);
             }
 
-            if ($state === RecordInterface::RECORD_STATE_CHANGED || $state === RecordInterface::RECORD_STATE_MOVED) {
+            if (in_array($state, self::CHANGED_STATES, true)) {
                 $this->updateForeignRecord($record);
             } elseif ($state === RecordInterface::RECORD_STATE_ADDED) {
                 $this->addForeignRecord($record);

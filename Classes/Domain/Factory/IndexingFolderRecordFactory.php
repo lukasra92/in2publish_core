@@ -175,7 +175,7 @@ class IndexingFolderRecordFactory
 
         $properties = ['folder_hash' => $localFolder->getHashedIdentifier(), 'storage' => $storageUid];
         $records = $this->recordFinder->findRecordsByProperties($properties, 'sys_file', true);
-        $records = $this->filterRecords($localFiles, $remoteFiles, $records);
+        //$records = $this->filterRecords($localFiles, $remoteFiles, $records);
         $rootFolder->addRelatedRecords($records);
 
         return $rootFolder;

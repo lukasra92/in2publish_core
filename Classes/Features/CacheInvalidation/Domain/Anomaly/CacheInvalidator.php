@@ -58,6 +58,7 @@ class CacheInvalidator implements SingletonInterface
 
     public function registerClearCacheTasks(PublishingOfOneRecordBegan $event): void
     {
+        // TODO: Early return when the table is only allowed on root
         $record = $event->getRecord();
         if ($record->isPagesTable()) {
             $pid = (int)$record->getIdentifier();
