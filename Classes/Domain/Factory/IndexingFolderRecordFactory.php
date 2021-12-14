@@ -287,8 +287,8 @@ class IndexingFolderRecordFactory
                 } else {
                     $touchedEntries[$fileInfoIndex] = $file;
 
-                    $fileExistsLocally = isset($localFiles[$localFileName]);
-                    $fileExistsRemotely = isset($remoteFiles[$foreignFileName]);
+                    $fileExistsLocally = !empty($localFiles[$localFileName]);
+                    $fileExistsRemotely = !empty($remoteFiles[$foreignFileName]);
 
                     // save the database state separately, because we're going to modify it now.
                     $file->addAdditionalProperty('recordDatabaseState', $file->getState());
