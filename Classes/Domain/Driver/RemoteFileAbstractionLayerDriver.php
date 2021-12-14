@@ -638,7 +638,7 @@ class RemoteFileAbstractionLayerDriver extends AbstractLimitedFilesystemDriver
      *
      * @return string
      */
-    public function getPublicUrl($identifier): string
+    public function getPublicUrl($identifier): ?string
     {
         $callback = function () use ($identifier) {
             return $this->executeEnvelope(
