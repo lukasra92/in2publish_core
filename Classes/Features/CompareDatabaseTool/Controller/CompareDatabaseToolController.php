@@ -31,6 +31,7 @@ namespace In2code\In2publishCore\Features\CompareDatabaseTool\Controller;
 
 use Doctrine\DBAL\Driver\Connection;
 use In2code\In2publishCore\Config\ConfigContainer;
+use In2code\In2publishCore\Features\AdminTools\Controller\Traits\AdminToolsModuleTemplate;
 use In2code\In2publishCore\Features\CompareDatabaseTool\Domain\DTO\ComparisonRequest;
 use In2code\In2publishCore\Utility\ArrayUtility;
 use In2code\In2publishCore\Utility\DatabaseUtility;
@@ -51,6 +52,8 @@ use function max;
 
 class CompareDatabaseToolController extends ActionController
 {
+    use AdminToolsModuleTemplate;
+
     protected ConfigContainer $configContainer;
 
     protected Connection $localDatabase;
@@ -75,7 +78,7 @@ class CompareDatabaseToolController extends ActionController
         return $this->htmlResponse();
     }
 
-    public function compareAction(ComparisonRequest $comparisonRequest = null): void
+    public function compareAction(ComparisonRequest $comparisonRequest = null): ResponseInterface
     {
         if (null === $comparisonRequest) {
             $this->redirect('index');
@@ -177,6 +180,7 @@ class CompareDatabaseToolController extends ActionController
             }
         }
         $this->view->assign('differences', $differences);
+        return $this->htmlResponse();
     }
 
     public function transferAction(string $table, int $uid, string $expected): void
@@ -235,7 +239,11 @@ class CompareDatabaseToolController extends ActionController
             $foreignResult = $foreignQuery->execute();
             if (1 === $foreignResult) {
                 $this->addFlashMessage(
-                    LocalizationUtility::translate('compare_database.transfer.deleted_from_foreign', 'in2publish_core', [$table, $uid]),
+                    LocalizationUtility::translate(
+                        'compare_database.transfer.deleted_from_foreign',
+                        'in2publish_core',
+                        [$table, $uid]
+                    ),
                     LocalizationUtility::translate('compare_database.transfer.success', 'in2publish_core')
                 );
             }
@@ -256,7 +264,11 @@ class CompareDatabaseToolController extends ActionController
             $foreignResult = $foreignQuery->execute();
             if (1 === $foreignResult) {
                 $this->addFlashMessage(
-                    LocalizationUtility::translate('compare_database.transfer.transferred_to_foreign', 'in2publish_core', [$table, $uid]),
+                    LocalizationUtility::translate(
+                        'compare_database.transfer.transferred_to_foreign',
+                        'in2publish_core',
+                        [$table, $uid]
+                    ),
                     LocalizationUtility::translate('compare_database.transfer.success', 'in2publish_core')
                 );
             }
@@ -265,7 +277,10 @@ class CompareDatabaseToolController extends ActionController
         if ($expected === 'diff') {
             if (!(!empty($localRow) && !empty($foreignRow))) {
                 $this->addFlashMessage(
-                    LocalizationUtility::translate('compare_database.transfer.does_not_exists_on_both', 'in2publish_core'),
+                    LocalizationUtility::translate(
+                        'compare_database.transfer.does_not_exists_on_both',
+                        'in2publish_core'
+                    ),
                     LocalizationUtility::translate('compare_database.transfer.error', 'in2publish_core'),
                     AbstractMessage::ERROR
                 );
@@ -282,7 +297,11 @@ class CompareDatabaseToolController extends ActionController
             $foreignResult = $foreignQuery->execute();
             if (1 === $foreignResult) {
                 $this->addFlashMessage(
-                    LocalizationUtility::translate('compare_database.transfer.updated_on_foreign', 'in2publish_core', [$table, $uid]),
+                    LocalizationUtility::translate(
+                        'compare_database.transfer.updated_on_foreign',
+                        'in2publish_core',
+                        [$table, $uid]
+                    ),
                     LocalizationUtility::translate('compare_database.transfer.success', 'in2publish_core')
                 );
             }

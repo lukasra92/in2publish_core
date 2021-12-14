@@ -32,6 +32,7 @@ namespace In2code\In2publishCore\Features\RedirectsSupport\Controller;
 use In2code\In2publishCore\Communication\RemoteCommandExecution\RemoteCommandDispatcher;
 use In2code\In2publishCore\Config\ConfigContainer;
 use In2code\In2publishCore\Controller\AbstractController;
+use In2code\In2publishCore\Controller\Traits\ControllerModuleTemplate;
 use In2code\In2publishCore\Domain\Repository\CommonRepository;
 use In2code\In2publishCore\Domain\Service\ExecutionTimeService;
 use In2code\In2publishCore\Domain\Service\ForeignSiteFinder;
@@ -42,6 +43,8 @@ use In2code\In2publishCore\Utility\DatabaseUtility;
 use Psr\Http\Message\ResponseInterface;
 use Throwable;
 use TYPO3\CMS\Core\Messaging\AbstractMessage;
+use TYPO3\CMS\Core\Pagination\SimplePagination;
+use TYPO3\CMS\Extbase\Pagination\QueryResultPaginator;
 use TYPO3\CMS\Extbase\Utility\LocalizationUtility;
 
 use function array_column;
@@ -52,6 +55,8 @@ use function sprintf;
 
 class RedirectController extends AbstractController
 {
+    use ControllerModuleTemplate;
+
     protected CommonRepository $commonRepository;
 
     protected ForeignSiteFinder $foreignSiteFinder;
@@ -95,9 +100,11 @@ class RedirectController extends AbstractController
 
     /**
      * @param Filter|null $filter
+     * @param int $page
+     * @return ResponseInterface
      * @throws Throwable
      */
-    public function listAction(Filter $filter = null): ResponseInterface
+    public function listAction(Filter $filter = null, int $page = 1): ResponseInterface
     {
         $foreignConnection = DatabaseUtility::buildForeignDatabaseConnection();
         $uidList = [];
@@ -107,9 +114,13 @@ class RedirectController extends AbstractController
             $query->select('uid')->from('sys_redirect')->where($query->expr()->eq('deleted', 1));
             $uidList = array_column($query->execute()->fetchAllAssociative(), 'uid');
         }
+        $redirects = $this->sysRedirectRepo->findForPublishing($uidList, $filter);
+        $paginator = new QueryResultPaginator($redirects, $page, 15);
+        $pagination = new SimplePagination($paginator);
         $this->view->assignMultiple(
             [
-                'redirects' => $this->sysRedirectRepo->findForPublishing($uidList, $filter),
+                'paginator' => $paginator,
+                'pagination' => $pagination,
                 'hosts' => $this->sysRedirectRepo->findHostsOfRedirects(),
                 'statusCodes' => $this->sysRedirectRepo->findStatusCodesOfRedirects(),
                 'filter' => $filter,

@@ -32,6 +32,7 @@ namespace In2code\In2publishCore\Controller;
 
 use In2code\In2publishCore\Communication\RemoteCommandExecution\RemoteCommandDispatcher;
 use In2code\In2publishCore\Config\ConfigContainer;
+use In2code\In2publishCore\Controller\Traits\ControllerModuleTemplate;
 use In2code\In2publishCore\Domain\Repository\CommonRepository;
 use In2code\In2publishCore\Domain\Service\ExecutionTimeService;
 use In2code\In2publishCore\Domain\Service\TcaProcessingService;
@@ -63,6 +64,8 @@ use function strpos;
  */
 class RecordController extends AbstractController
 {
+    use ControllerModuleTemplate;
+
     protected CommonRepository $commonRepository;
 
     protected FailureCollector $failureCollector;
