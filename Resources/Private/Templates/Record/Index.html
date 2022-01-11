@@ -7,16 +7,35 @@
 			<f:translate key="module_m1_title">publish pages and records</f:translate>
 		</h2>
 
-		<div class="in2publish-main">
-			<f:render partial="Server" arguments="{_all}" />
-			<div class="in2publish-stagelisting{f:if(condition:config.factory.simpleOverviewAndAjax,then:' simpleOverviewAndAjax')}">
-				<f:render partial="Record/Index/PageList" arguments="{_all}" />
-			</div>
-		</div>
-
 		<f:if condition="{record}">
 			<f:render partial="Record/Index/FunctionBar" arguments="{_all}" />
 		</f:if>
+
+		<div class="table-fit">
+			<table class="table in2publish-table">
+				<thead>
+				<tr>
+					<th class="col-icon"></th>
+					<th class="col-filename col-responsive nowrap"><f:translate key="record.filename">Page</f:translate> <i>(Local)</i></th>
+					<th class="col-control actions"></th>
+					<th class="col-control col-selection"></th>
+					<th class="col-control col-publish">
+						<i>[<f:translate key="LLL:EXT:core/Resources/Private/Language/locallang_core.xlf:labels._CONTROL_"/>]</i>
+					</th>
+					<th class="col-icon"></th>
+					<th class="col-filename col-responsive nowrap"><f:translate key="record.filename">Page</f:translate> <i>(Foreign)</i></th>
+					<th class="col-control">
+						<i>[<f:translate key="LLL:EXT:core/Resources/Private/Language/locallang_core.xlf:labels._CONTROL_"/>]</i>
+					</th>
+					<th><f:translate key="record.state"/></th>
+				</tr>
+				</thead>
+				<tbody>
+				<f:render partial="Record/Index/PageList" arguments="{_all}" />
+				</tbody>
+			</table>
+		</div>
+
 		<f:alias map="{moduleName: 'record'}">
 			<f:render partial="Footer" arguments="{_all}" />
 		</f:alias>
