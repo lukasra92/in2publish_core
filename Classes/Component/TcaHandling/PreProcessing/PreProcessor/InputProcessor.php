@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace In2code\In2publishCore\Domain\Service\Processor;
+namespace In2code\In2publishCore\Component\TcaHandling\PreProcessing\PreProcessor;
 
 /*
  * Copyright notice
@@ -29,27 +29,27 @@ namespace In2code\In2publishCore\Domain\Service\Processor;
  * This copyright notice MUST APPEAR in all copies of the script!
  */
 
-class InlineProcessor extends AbstractProcessor
+use TYPO3\CMS\Core\Utility\GeneralUtility;
+
+use function array_intersect;
+
+class InputProcessor extends TextProcessor
 {
-    public const FOREIGN_FIELD = 'foreign_field';
-    public const FOREIGN_MATCH_FIELDS = 'foreign_match_fields';
-    public const FOREIGN_TABLE_FIELD = 'foreign_table_field';
-    public const SYMMETRIC_FIELD = 'symmetric_field';
+    protected $type = 'input';
 
-    protected bool $canHoldRelations = true;
-
-    protected array $forbidden = [
-        'symmetric_field is set on the foreign side of relations, which must not be resolved' => self::SYMMETRIC_FIELD,
+    protected $required = [
+        'softref' => 'Only input fields with softref "typolink" or "typolink_tag" can hold relations',
     ];
 
-    protected array $required = [
-        'Must be set, there is no type "inline" without a foreign table' => self::FOREIGN_TABLE,
-    ];
-
-    protected array $allowed = [
-        self::FOREIGN_FIELD,
-        self::FOREIGN_MATCH_FIELDS,
-        self::FOREIGN_TABLE_FIELD,
-        self::MM,
-    ];
+    protected function additionalPreProcess(string $table, string $column, array $tca): array
+    {
+        if (!isset($tca['softref'])) {
+            return [];
+        }
+        $softRef = GeneralUtility::trimExplode(',', $tca['softref'] ?? '', true);
+        if (empty(array_intersect(['typolink', 'typolink_tag'], $softRef))) {
+            return ['Only input fields with typolinks can hold relations'];
+        }
+        return [];
+    }
 }
