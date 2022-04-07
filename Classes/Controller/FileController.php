@@ -68,22 +68,17 @@ class FileController extends AbstractController
 {
     protected bool $forcePidInteger = false;
 
-    protected RecordPublisher $recordPublisher;
 
     private ModuleTemplateFactory $moduleTemplateFactory;
 
     private PageRenderer $pageRenderer;
 
-    private FalFinder $falFinder;
-
-    protected FalPublisher $falPublisher;
 
     public function __construct(
         ConfigContainer $configContainer,
         ExecutionTimeService $executionTimeService,
         EnvironmentService $environmentService,
         RemoteCommandDispatcher $remoteCommandDispatcher,
-        RecordPublisher $recordPublisher,
         PageRenderer $pageRenderer,
         ModuleTemplateFactory $moduleTemplateFactory
     ) {
@@ -93,7 +88,6 @@ class FileController extends AbstractController
             $environmentService,
             $remoteCommandDispatcher
         );
-        $this->recordPublisher = $recordPublisher;
         $this->moduleTemplateFactory = $moduleTemplateFactory;
         $this->pageRenderer = $pageRenderer;
         $this->pageRenderer->addInlineLanguageLabelFile('EXT:in2publish_core/Resources/Private/Language/locallang_m3_js.xlf');
@@ -107,15 +101,6 @@ class FileController extends AbstractController
         );
     }
 
-    public function injectFalFinder(FalFinder $falFinder): void
-    {
-        $this->falFinder = $falFinder;
-    }
-
-    public function injectFalPublisher(FalPublisher $falPublisher): void
-    {
-        $this->falPublisher = $falPublisher;
-    }
 
     public function indexAction(): ResponseInterface
     {
