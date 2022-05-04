@@ -36,7 +36,6 @@ use function array_intersect;
 class InputProcessor extends TextProcessor
 {
     protected string $type = 'input';
-
     protected array $required = [
         'softref' => 'Only input fields with softref "typolink" or "typolink_tag" can hold relations',
     ];
