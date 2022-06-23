@@ -30,15 +30,8 @@ namespace In2code\In2publishCore\Controller;
  * This copyright notice MUST APPEAR in all copies of the script!
  */
 
-use In2code\In2publishCore\Communication\RemoteCommandExecution\RemoteCommandDispatcher;
-use In2code\In2publishCore\Component\FalHandling\FalFinder;
-use In2code\In2publishCore\Component\FalHandling\FalPublisher;
 use In2code\In2publishCore\Component\FalHandling\Finder\Exception\TooManyFilesException;
-use In2code\In2publishCore\Component\RecordHandling\RecordPublisher;
-use In2code\In2publishCore\Config\ConfigContainer;
 use In2code\In2publishCore\Domain\Model\RecordInterface;
-use In2code\In2publishCore\Domain\Service\ExecutionTimeService;
-use In2code\In2publishCore\Service\Environment\EnvironmentService;
 use Psr\Http\Message\ResponseInterface;
 use RuntimeException;
 use Throwable;
@@ -51,9 +44,9 @@ use TYPO3\CMS\Extbase\Utility\LocalizationUtility;
 
 use function count;
 use function dirname;
-use function json_encode;
 use function explode;
 use function is_string;
+use function json_encode;
 use function reset;
 use function strlen;
 use function strpos;
@@ -67,30 +60,15 @@ use function trim;
 class FileController extends AbstractController
 {
     protected bool $forcePidInteger = false;
-
-
     private ModuleTemplateFactory $moduleTemplateFactory;
-
     private PageRenderer $pageRenderer;
 
-
-    public function __construct(
-        ConfigContainer $configContainer,
-        ExecutionTimeService $executionTimeService,
-        EnvironmentService $environmentService,
-        RemoteCommandDispatcher $remoteCommandDispatcher,
-        PageRenderer $pageRenderer,
-        ModuleTemplateFactory $moduleTemplateFactory
-    ) {
-        parent::__construct(
-            $configContainer,
-            $executionTimeService,
-            $environmentService,
-            $remoteCommandDispatcher
-        );
-        $this->moduleTemplateFactory = $moduleTemplateFactory;
+    public function injectPageRenderer(PageRenderer $pageRenderer): void
+    {
         $this->pageRenderer = $pageRenderer;
-        $this->pageRenderer->addInlineLanguageLabelFile('EXT:in2publish_core/Resources/Private/Language/locallang_m3_js.xlf');
+        $this->pageRenderer->addInlineLanguageLabelFile(
+            'EXT:in2publish_core/Resources/Private/Language/locallang_m3_js.xlf'
+        );
         $this->pageRenderer->loadRequireJsModule('TYPO3/CMS/In2publishCore/BackendModule');
         $this->pageRenderer->addCssFile(
             'EXT:in2publish_core/Resources/Public/Css/Modules.css',
@@ -101,6 +79,10 @@ class FileController extends AbstractController
         );
     }
 
+    public function injectModuleTemplateFactory(ModuleTemplateFactory $moduleTemplateFactory): void
+    {
+        $this->moduleTemplateFactory = $moduleTemplateFactory;
+    }
 
     public function indexAction(): ResponseInterface
     {
