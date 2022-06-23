@@ -45,12 +45,10 @@ use function register_shutdown_function;
 
 class RunningRequestService implements SingletonInterface
 {
-    /** @var RunningRequestRepository */
-    protected $runningRequestRepository;
-
-    protected $requestToken;
-
-    protected $shutdownFunctionRegistered = false;
+    protected RunningRequestRepository $runningRequestRepository;
+    protected string $requestToken;
+    protected array $registeredRecords = [];
+    protected bool $shutdownFunctionRegistered = false;
 
     public function __construct(RunningRequestRepository $runningRequestRepository)
     {
@@ -62,10 +60,13 @@ class RunningRequestService implements SingletonInterface
     {
         $this->registerShutdownFunction();
 
-        /** @var Record $record */
-        $record = $event->getRecord();
+        $record = $event->getRecordTree();
 
-        $this->writeToRunningRequestsTable($record);
+        foreach ($record->getChildren() as $records) {
+            foreach ($records as $record) {
+                $this->writeToRunningRequestsTable($record);
+            }
+        }
         $this->runningRequestRepository->flush();
     }
 
@@ -79,14 +80,19 @@ class RunningRequestService implements SingletonInterface
         $this->runningRequestRepository->flush();
     }
 
-    protected function writeToRunningRequestsTable(RecordInterface $record): void
+    protected function writeToRunningRequestsTable(Record $record): void
     {
-        $recordId = (string)$record->getIdentifier();
-        $tableName = $record->getTableName();
+        $recordId = (string)$record->getId();
+        $tableName = $record->getClassification();
+
+        if (isset($this->registeredRecords[$tableName][$recordId])) {
+            return;
+        }
+        $this->registeredRecords[$tableName][$recordId] = true;
 
         $this->runningRequestRepository->add($recordId, $tableName, $this->requestToken);
 
-        foreach ($record->getRelatedRecords() as $relatedRecords) {
+        foreach ($record->getChildren() as $relatedRecords) {
             foreach ($relatedRecords as $relatedRecord) {
                 $this->writeToRunningRequestsTable($relatedRecord);
             }
