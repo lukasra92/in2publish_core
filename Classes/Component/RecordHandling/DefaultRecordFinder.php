@@ -1261,6 +1261,7 @@ class DefaultRecordFinder extends CommonRepository implements RecordFinder, Logg
                     }
                     $localUid = $relatedRecord->getLocalProperty($this->getForeignField($columnConfiguration));
                     $foreignUid = $relatedRecord->getForeignProperty($this->getForeignField($columnConfiguration));
+                    $mergedUid = $relatedRecord->getMergedProperty($this->getForeignField($columnConfiguration));
 
                     if ($localUid > 0 && $foreignUid > 0 && $localUid !== $foreignUid) {
                         $this->logger->alert(
@@ -1274,7 +1275,7 @@ class DefaultRecordFinder extends CommonRepository implements RecordFinder, Logg
                         continue;
                     }
                     if (!in_array($originalTableName, $excludedTableNames)) {
-                        $originalRecord = $this->findByIdentifier($localUid, $originalTableName);
+                        $originalRecord = $this->findByIdentifier($mergedUid, $originalTableName);
                         if ($originalRecord !== null) {
                             $relatedRecord->addRelatedRecord($originalRecord);
                         }
