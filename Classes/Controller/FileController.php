@@ -31,7 +31,7 @@ namespace In2code\In2publishCore\Controller;
  */
 
 use In2code\In2publishCore\Component\FalHandling\FalFinder;
-use In2code\In2publishCore\Domain\Model\Record;
+use In2code\In2publishCore\Component\TcaHandling\Publisher\PublisherService;
 use In2code\In2publishCore\Domain\Model\RecordInterface;
 use In2code\In2publishCore\Domain\Model\RecordTree;
 use Psr\Http\Message\ResponseInterface;
@@ -65,6 +65,7 @@ class FileController extends AbstractController
     private ModuleTemplateFactory $moduleTemplateFactory;
     private PageRenderer $pageRenderer;
     private FalFinder $falFinder;
+    private PublisherService $publisherService;
 
     public function injectPageRenderer(PageRenderer $pageRenderer): void
     {
@@ -92,6 +93,11 @@ class FileController extends AbstractController
         $this->moduleTemplateFactory = $moduleTemplateFactory;
     }
 
+    public function injectPublisherService(PublisherService $publisherService): void
+    {
+        $this->publisherService = $publisherService;
+    }
+
     public function indexAction(): ResponseInterface
     {
         $recordTree = $this->tryToGetFolderInstance($this->pid === 0 ? null : $this->pid);
@@ -113,20 +119,22 @@ class FileController extends AbstractController
      * @throws StopActionException
      * @SuppressWarnings(PHPMD.BooleanArgumentFlag) On purpose
      */
-    public function publishFolderAction(string $identifier, bool $skipNotification = false): void
+    public function publishFolderAction(string $combinedIdentifier, bool $skipNotification = false): void
     {
+        $recordTree = $this->tryToGetFolderInstance($combinedIdentifier, true);
+
         try {
-            $this->falPublisher->publishFolder($identifier);
+            $this->publisherService->publishRecordTree($recordTree);
             if (!$skipNotification) {
                 $this->addFlashMessage(
-                    LocalizationUtility::translate('file_publishing.folder', 'in2publish_core', [$identifier]),
+                    LocalizationUtility::translate('file_publishing.folder', 'in2publish_core', [$combinedIdentifier]),
                     LocalizationUtility::translate('file_publishing.success', 'in2publish_core')
                 );
             }
         } catch (Throwable $exception) {
             if (!$skipNotification) {
                 $this->addFlashMessage(
-                    LocalizationUtility::translate('file_publishing.failure.folder', 'in2publish_core', [$identifier]),
+                    LocalizationUtility::translate('file_publishing.failure.folder', 'in2publish_core', [$combinedIdentifier]),
                     LocalizationUtility::translate('file_publishing.failure', 'in2publish_core'),
                     AbstractMessage::ERROR
                 );
@@ -204,17 +212,12 @@ class FileController extends AbstractController
         return $this->jsonResponse(json_encode($return, JSON_THROW_ON_ERROR));
     }
 
-    /**
-     * @param string|null $identifier CombinedIdentifier as FAL would use it
-     *
-     * @return Record|null The record or null if it can not be handled
-     */
-    protected function tryToGetFolderInstance(?string $identifier): ?RecordTree
+    protected function tryToGetFolderInstance(?string $combinedIdentifier, bool $onlyRoot = false): ?RecordTree
     {
-        if (is_string($identifier) && strpos($identifier, ':') < strlen($identifier)) {
-            [$storage, $name] = explode(':', $identifier);
-            $identifier = $storage . ':' . trim($name, '/') . '/';
+        if (is_string($combinedIdentifier) && strpos($combinedIdentifier, ':') < strlen($combinedIdentifier)) {
+            [$storage, $name] = explode(':', $combinedIdentifier);
+            $combinedIdentifier = $storage . ':/' . trim($name, '/') . '/';
         }
-        return $this->falFinder->findFalRecord($identifier);
+        return $this->falFinder->findFalRecord($combinedIdentifier, $onlyRoot);
     }
 }
