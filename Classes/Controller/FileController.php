@@ -49,7 +49,6 @@ use TYPO3\CMS\Extbase\Utility\LocalizationUtility;
 
 use function explode;
 use function http_build_query;
-use function is_int;
 use function is_string;
 use function json_encode;
 use function parse_str;
