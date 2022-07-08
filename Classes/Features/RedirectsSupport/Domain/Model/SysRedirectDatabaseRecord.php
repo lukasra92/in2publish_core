@@ -15,7 +15,7 @@ use function sprintf;
 
 class SysRedirectDatabaseRecord extends DatabaseRecord
 {
-    public function __toString()
+    public function __toString(): string
     {
         $localProps = $this->getLocalProps();
         return sprintf(

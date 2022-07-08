@@ -12,17 +12,17 @@ class RecordTree implements Node
      */
     private array $children = [];
 
+    public function addChild(Record $record): void
+    {
+        $this->children[$record->getClassification()][$record->getId()] = $record;
+    }
+
     /**
      * @return array<string, array<int|string, Record>>
      */
     public function getChildren(): array
     {
         return $this->children;
-    }
-
-    public function addChild(Record $record): void
-    {
-        $this->children[$record->getClassification()][$record->getId()] = $record;
     }
 
     public function getClassification(): string

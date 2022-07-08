@@ -18,7 +18,7 @@ abstract class AbstractRecord implements Record
     protected string $state;
     protected bool $hasBeenAskedForRecursiveState = false;
     /**
-     * @var array<Record>
+     * @var array<string, array<Record>>
      */
     protected array $children = [];
     /**
@@ -229,5 +229,28 @@ abstract class AbstractRecord implements Record
     public function getChangedProps(): array
     {
         return array_keys(array_diff_assoc($this->localProps, $this->foreignProps));
+    }
+
+    public function getDependencies(): array
+    {
+        return [];
+    }
+
+    public function getInheritedDependencies(): array
+    {
+        $dependencies = $this->getDependencies();
+        foreach ($this->children as $children) {
+            foreach ($children as $child) {
+                foreach ($child->getDependencies() as $dependency) {
+                    $dependencies[] = $dependency;
+                }
+            }
+        }
+        return $dependencies;
+    }
+
+    public function __toString(): string
+    {
+        return $this->getClassification() . ' [' . $this->getId() . ']';
     }
 }

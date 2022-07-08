@@ -31,6 +31,8 @@ namespace In2code\In2publishCore\Controller;
  */
 
 use In2code\In2publishCore\Component\Core\Publisher\PublisherService;
+use In2code\In2publishCore\Component\Core\Record\Service\RecordDependencyResolver;
+use In2code\In2publishCore\Component\Core\RecordIndex;
 use In2code\In2publishCore\Component\Core\RecordTree\RecordTreeBuilder;
 use In2code\In2publishCore\Component\Core\RecordTree\RecordTreeBuildRequest;
 use In2code\In2publishCore\Controller\Traits\CommonViewVariables;
@@ -52,6 +54,7 @@ use TYPO3\CMS\Extbase\Utility\LocalizationUtility;
 
 use function array_keys;
 use function implode;
+use function is_array;
 use function is_int;
 use function json_encode;
 
@@ -73,6 +76,7 @@ class RecordController extends ActionController
     protected PermissionService $permissionService;
     protected RecordTreeBuilder $recordTreeBuilder;
     protected PublisherService $publisherService;
+    protected RecordIndex $recordIndex;
 
     public function injectFailureCollector(FailureCollector $failureCollector): void
     {
@@ -104,6 +108,11 @@ class RecordController extends ActionController
             '',
             false
         );
+    }
+
+    public function injectRecordIndex(RecordIndex $recordIndex): void
+    {
+        $this->recordIndex = $recordIndex;
     }
 
     public function initializeIndexAction(): void
@@ -151,6 +160,62 @@ class RecordController extends ActionController
         }
         $request = new RecordTreeBuildRequest('pages', $pid, $pageRecursionLimit);
         $recordTree = $this->recordTreeBuilder->buildRecordTree($request);
+
+        $recordDependencyResolver = new RecordDependencyResolver();
+        $deps = $recordDependencyResolver->resolve($recordTree);
+        foreach ($deps as &$dep) {
+            $fromClass = $dep->getFromClassifier();
+            $fromId = $dep->getFromId();
+            $toClass = $dep->getToClassifier();
+            $toId = $dep->getToId();
+            $fromRecord = $this->recordIndex->getRecord($fromClass, $fromId);
+            $toRecord = $this->recordIndex->getRecord($toClass, $toId);
+            if (null === $toRecord) {
+                $toRecord = new class($toClass, $toId) {
+                    private $toClass;
+                    private $toId;
+
+                    public function __construct($toClass, $toId)
+                    {
+                        $this->toClass = $toClass;
+                        $this->toId = $toId;
+                    }
+
+                    public function __toString(): string
+                    {
+                        return $this->toClass . ':' . $this->toId;
+                    }
+
+                    public function getClassification(): string
+                    {
+                        return $this->toClass;
+                    }
+
+                };
+            }
+            $dep = (string)$fromRecord
+                . '('
+                . $fromRecord->getClassification()
+                . ')'
+                . ' -> '
+                . (string)$toRecord
+                . '('
+                . $toRecord->getClassification()
+                . ')'
+                . ': '
+                . $dep->getReason();
+        }
+        \TYPO3\CMS\Extbase\Utility\DebuggerUtility::var_dump(
+            $deps,
+            __FILE__ . '@' . __LINE__,
+            20,
+            false,
+            true,
+            false,
+            [],
+            []
+        );
+        die(__FILE__ . '@' . __LINE__);
 
         $this->view->assign('recordTree', $recordTree);
         return $this->htmlResponse();
